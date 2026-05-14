@@ -5,8 +5,8 @@ import { useRef } from "react";
 import { Code2, Layers, Zap, Coffee } from "lucide-react";
 
 const stats = [
-  { icon: Code2, value: "50+", label: "Projects Built" },
-  { icon: Layers, value: "3+", label: "Years Exp" },
+  { icon: Code2, value: "7+", label: "Projects Built" },
+  { icon: Layers, value: "5+", label: "Months Exp" },
   { icon: Zap, value: "15+", label: "Tech Stack" },
   { icon: Coffee, value: "∞", label: "Coffee Cups" },
 ];
