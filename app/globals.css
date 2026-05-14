@@ -1,27 +1,152 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Base ─── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #66fcf1 #0b0c10;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Space Grotesk", sans-serif;
+  background-color: #0b0c10;
+  color: #c5c6c7;
+  overflow-x: hidden;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0c10;
+}
+::-webkit-scrollbar-thumb {
+  background: #45a29e;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #66fcf1;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(102, 252, 241, 0.25);
+  color: #fff;
+}
+
+/* ─── Glass Card ─── */
+@layer components {
+  .glass-card {
+    @apply relative overflow-hidden rounded-xl;
+    background: rgba(31, 40, 51, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(102, 252, 241, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  .glass-card:hover {
+    border-color: rgba(102, 252, 241, 0.3);
+    box-shadow: 0 0 30px rgba(102, 252, 241, 0.08), inset 0 0 30px rgba(102, 252, 241, 0.02);
+  }
+
+  .glow-border {
+    @apply relative;
+    border: 1px solid rgba(102, 252, 241, 0.12);
+    transition: all 0.3s ease;
+  }
+
+  .glow-border:hover {
+    border-color: rgba(102, 252, 241, 0.6);
+    box-shadow: 0 0 15px rgba(102, 252, 241, 0.15);
+  }
+
+  .glow-border-violet:hover {
+    border-color: rgba(168, 85, 247, 0.6);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.15);
+  }
+
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #66fcf1, #45a29e, #a855f7);
+  }
+
+  .gradient-text-cyan {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #66fcf1, #45a29e);
+  }
+}
+
+/* ─── Grid Background ─── */
+.grid-bg {
+  background-image: linear-gradient(rgba(102, 252, 241, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102, 252, 241, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ─── Cursor Glow ─── */
+.cursor-glow {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(102, 252, 241, 0.04) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: left 0.3s ease, top 0.3s ease;
+}
+
+/* ─── Tech Orbit ─── */
+.orbit-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+}
+
+@media (min-width: 640px) {
+  .orbit-container {
+    width: 400px;
+    height: 400px;
+  }
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(102, 252, 241, 0.08);
+}
+
+.orbit-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+/* ─── Noise overlay ─── */
+.noise-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
