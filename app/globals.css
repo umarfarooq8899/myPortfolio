@@ -140,6 +140,15 @@ body {
   transform-origin: center;
 }
 
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateX(var(--orbit-radius)) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(var(--orbit-radius)) rotate(-360deg);
+  }
+}
+
 /* ─── Noise overlay ─── */
 .noise-overlay::before {
   content: "";
