@@ -23,8 +23,8 @@ export default function Contact() {
 
   const socials = [
     { icon: GithubIcon, label: "GitHub", href: "https://github.com/umarfarooq", color: "hover:text-white" },
-    { icon: LinkedinIcon, label: "LinkedIn", href: "https://linkedin.com/in/umarfarooq", color: "hover:text-[#0A66C2]" },
-    { icon: Mail, label: "Email", href: "mailto:umar@example.com", color: "hover:text-cyan-neon" },
+    { icon: LinkedinIcon, label: "LinkedIn", href: "https://www.linkedin.com/in/umar-farooq-aa9251378?utm_source=share_via&utm_content=profile&utm_medium=member_android", color: "hover:text-[#0A66C2]" },
+    { icon: Mail, label: "Email", href: "mailto:uf126322@gmail.com", color: "hover:text-cyan-neon" },
   ];
 
   return (
