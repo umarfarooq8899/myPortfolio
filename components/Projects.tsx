@@ -10,31 +10,34 @@ const GithubIcon = ({ size = 16 }: { size?: number }) => (
 
 const projects = [
   {
-    title: "SafarBot",
-    subtitle: "AI Voice Agent",
-    description: "An intelligent AI-powered voice agent that automates customer interactions with natural language processing, real-time speech synthesis, and contextual understanding.",
-    tags: ["AI/ML", "Voice AI", "NLP", "Python", "WebSocket"],
-    icon: Bot,
-    accent: "cyan",
-    featured: true,
-  },
-  {
-    title: "DevFlow",
-    subtitle: "SaaS Dashboard",
-    description: "A comprehensive SaaS analytics dashboard with real-time data visualization, team collaboration, and automated workflow management.",
-    tags: ["Next.js", "TypeScript", "Prisma", "PostgreSQL"],
-    icon: BarChart3,
-    accent: "violet",
-    featured: false,
-  },
-  {
-    title: "EstateHub",
-    subtitle: "MERN Real Estate Platform",
-    description: "Full-featured real estate marketplace with property listings, advanced search filters, map integration, and user authentication.",
-    tags: ["React", "Node.js", "MongoDB", "Express", "Maps API"],
+    title: "umii",
+    subtitle: "E-Commerce Platform",
+    description: "Modern clothing e-commerce platform offering a curated selection of apparel with a seamless shopping experience.",
+    tags: ["Next.js", "React", "Tailwind CSS", "E-commerce"],
     icon: Building2,
     accent: "cyan",
+    featured: true,
+    link: "https://umii-zvz9.vercel.app/",
+  },
+  {
+    title: "AI Disaster Relief System",
+    subtitle: "AI Relief System",
+    description: "An advanced platform for disaster prediction and relief coordination, utilizing machine learning algorithms to forecast and manage emergency responses.",
+    tags: ["AI/ML", "React", "Node.js", "Data Visualization"],
+    icon: Bot,
+    accent: "violet",
     featured: false,
+    link: "https://ai-disaster-nu.vercel.app/",
+  },
+  {
+    title: "Umii Shoes",
+    subtitle: "Luxury Footwear Store",
+    description: "A premium e-commerce storefront for luxury footwear, featuring elegant UI design, smooth animations, and optimized performance.",
+    tags: ["Next.js", "Tailwind CSS", "Framer Motion", "UI/UX"],
+    icon: BarChart3,
+    accent: "cyan",
+    featured: false,
+    link: "https://umii-footwear.vercel.app/",
   },
 ];
 
@@ -58,9 +61,9 @@ function ProjectCard({ project, index, isInView }: { project: typeof projects[0]
             <button className={`p-2 rounded-lg border transition-all duration-300 ${isCyan ? "border-cyan-neon/10 hover:border-cyan-neon/50 hover:text-cyan-neon" : "border-violet-bright/10 hover:border-violet-bright/50 hover:text-violet-bright"} text-text-muted`}>
               <GithubIcon size={16} />
             </button>
-            <button className={`p-2 rounded-lg border transition-all duration-300 ${isCyan ? "border-cyan-neon/10 hover:border-cyan-neon/50 hover:text-cyan-neon" : "border-violet-bright/10 hover:border-violet-bright/50 hover:text-violet-bright"} text-text-muted`}>
+            <a href={project.link} target="_blank" rel="noopener noreferrer" className={`p-2 rounded-lg border transition-all duration-300 ${isCyan ? "border-cyan-neon/10 hover:border-cyan-neon/50 hover:text-cyan-neon" : "border-violet-bright/10 hover:border-violet-bright/50 hover:text-violet-bright"} text-text-muted block`}>
               <ExternalLink size={16} />
-            </button>
+            </a>
           </div>
         </div>
 
