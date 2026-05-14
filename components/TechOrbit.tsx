@@ -4,16 +4,16 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
 const orbitItems = [
-  { label: "React", color: "#61DAFB", angle: 0, radius: 130, speed: 20, icon: "⚛" },
-  { label: "Node.js", color: "#68A063", angle: 90, radius: 130, speed: 25, icon: "⬡" },
-  { label: "Prisma", color: "#2D3748", angle: 180, radius: 130, speed: 18, icon: "◆" },
-  { label: "PostgreSQL", color: "#336791", angle: 270, radius: 130, speed: 22, icon: "🐘" },
+  { label: "MongoDB", color: "#47A248", angle: 0, radius: 130, speed: 20, icon: "🍃" },
+  { label: "Express.js", color: "#68A063", angle: 90, radius: 130, speed: 25, icon: "⚡" },
+  { label: "React", color: "#61DAFB", angle: 180, radius: 130, speed: 18, icon: "⚛" },
+  { label: "Node.js", color: "#339933", angle: 270, radius: 130, speed: 22, icon: "⬡" },
 ];
 
 const extraTech = [
-  "TypeScript", "Next.js", "Python", "Docker",
-  "AWS", "GraphQL", "Redis", "MongoDB",
-  "TailwindCSS", "Framer Motion", "Three.js", "Git",
+  "JavaScript", "TypeScript", "Next.js", "Redux",
+  "Mongoose", "REST APIs", "JWT Auth", "Socket.io",
+  "TailwindCSS", "Framer Motion", "Git", "Vercel",
 ];
 
 export default function TechOrbit() {
@@ -80,7 +80,7 @@ export default function TechOrbit() {
               Tools & <span className="gradient-text">Technologies</span>
             </h3>
             <p className="text-text-primary/60 mb-8 leading-relaxed">
-              A comprehensive toolkit for building modern, scalable applications — from frontend frameworks to cloud infrastructure and AI pipelines.
+              A comprehensive MERN stack toolkit for building modern, scalable full-stack web applications — from React frontends to Node.js backends with MongoDB databases.
             </p>
             <div className="flex flex-wrap gap-3">
               {extraTech.map((tech, i) => (

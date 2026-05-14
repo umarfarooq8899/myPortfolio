@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="flex items-center gap-1.5 text-text-muted text-xs font-mono">
           <span>Built with</span>
           <Heart size={12} className="text-red-400 fill-red-400" />
-          <span>& Next.js</span>
+          <span>& MERN Stack</span>
         </div>
       </div>
     </footer>

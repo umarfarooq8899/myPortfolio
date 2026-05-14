@@ -15,7 +15,7 @@ const WireframeScene = dynamic(() => import("./WireframeScene"), {
   ),
 });
 
-const titles = ["Full Stack Architect", "AI Automation Expert", "Next.js Specialist"];
+const titles = ["MERN Stack Developer", "React Specialist", "Node.js Engineer"];
 
 export default function Hero() {
   const [titleIndex, setTitleIndex] = useState(0);
@@ -101,8 +101,8 @@ export default function Hero() {
               transition={{ delay: 0.6 }}
               className="text-text-primary/60 text-base sm:text-lg max-w-md leading-relaxed mb-10"
             >
-              Crafting scalable digital experiences with modern web technologies,
-              AI automation, and pixel-perfect design.
+              Crafting scalable digital experiences with MongoDB, Express.js,
+              React, and Node.js — the complete MERN stack.
             </motion.p>
 
             {/* CTAs */}

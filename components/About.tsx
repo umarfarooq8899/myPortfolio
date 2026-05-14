@@ -29,9 +29,9 @@ export default function About() {
               Building the future,<br /><span className="gradient-text-cyan">one line at a time.</span>
             </h2>
             <div className="space-y-4 text-text-primary/70 leading-relaxed">
-              <p>I&apos;m a Full Stack Developer and AI Automation specialist with a passion for building scalable, production-grade applications. My work spans from designing elegant frontends to architecting robust backend systems with AI-powered features.</p>
-              <p>With expertise in the modern JavaScript ecosystem — React, Next.js, Node.js, and TypeScript — I craft digital experiences that are not only visually stunning but also performant and accessible.</p>
-              <p>When I&apos;m not coding, you&apos;ll find me exploring the latest in AI, contributing to open-source projects, or deep-diving into system design patterns.</p>
+              <p>I&apos;m a MERN Stack Developer with a passion for building scalable, production-grade web applications. My work spans from designing elegant React frontends to architecting robust Node.js and Express.js backend systems with MongoDB databases.</p>
+              <p>With deep expertise in the MERN ecosystem — MongoDB, Express.js, React, and Node.js — I craft full-stack digital experiences that are not only visually stunning but also performant and accessible.</p>
+              <p>When I&apos;m not coding, you&apos;ll find me exploring new JavaScript libraries, building REST APIs, or deep-diving into database optimization and application architecture.</p>
             </div>
           </motion.div>
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
