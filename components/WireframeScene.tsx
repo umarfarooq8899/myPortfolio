@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -60,16 +60,26 @@ function InnerGeometry() {
 
 function FloatingParticles() {
   const pointsRef = useRef<THREE.Points>(null!);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const particleCount = isMobile ? 50 : 200;
 
   const particlePositions = useMemo(() => {
-    const positions = new Float32Array(200 * 3);
-    for (let i = 0; i < 200; i++) {
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 10;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
     }
     return positions;
-  }, []);
+  }, [particleCount]);
 
   useFrame((state) => {
     if (!pointsRef.current) return;
@@ -82,7 +92,7 @@ function FloatingParticles() {
         <bufferAttribute
           attach="attributes-position"
           args={[particlePositions, 3]}
-          count={200}
+          count={particleCount}
           itemSize={3}
         />
       </bufferGeometry>
@@ -97,7 +107,7 @@ export default function WireframeScene() {
       <Canvas
         camera={{ position: [0, 0, 6], fov: 45 }}
         style={{ background: "transparent" }}
-        dpr={[1, 2]}
+        dpr={typeof window !== "undefined" && window.innerWidth < 768 ? [1, 1] : [1, 2]}
       >
         <ambientLight intensity={0.5} />
         <WireframeGeometry />
