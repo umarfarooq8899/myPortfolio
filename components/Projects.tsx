@@ -39,6 +39,26 @@ const projects = [
     featured: false,
     link: "https://umii-footwear.vercel.app/",
   },
+    {
+    title: "Margala estate",
+    subtitle: "Real Estate Platform",
+    description: "A premium real estate platform showcasing properties in the Margala Hills, featuring elegant UI design, smooth animations, and optimized performance.",
+    tags: ["React", "Express.js", "MongoDB", "Tailwind CSS"],
+    icon: BarChart3,
+    accent: "cyan",
+    featured: false,
+    link: "https://margala-estate.vercel.app/",
+  },
+ {
+    title: "Safar Bot",
+    subtitle: "AI based bus ticket booking application",
+    description: "An advanced platform for bus ticket booking, utilizing machine learning algorithms to forecast and manage emergency responses.",
+    tags: ["MongoDB", "Express.js", "React", "Node.js","Tailwind CSS"],
+    icon: Bot,
+    accent: "violet",
+    featured: false,
+    link: "https://safar-bot.vercel.app/",
+  },  
 ];
 
 function ProjectCard({ project, index, isInView }: { project: typeof projects[0]; index: number; isInView: boolean }) {
