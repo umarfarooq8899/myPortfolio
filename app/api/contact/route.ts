@@ -26,12 +26,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Recipient email not configured' }, { status: 500 });
     }
 
+    const escapedName = escapeHtml(name);
+    const escapedEmail = escapeHtml(email);
+    const escapedMessage = escapeHtml(message).replace(/\n/g, '<br/>');
+
+    const htmlContent = [
+      '<p><strong>Name:</strong> ',
+      escapedName,
+      '</p><p><strong>Email:</strong> ',
+      escapedEmail,
+      '</p><p><strong>Message:</strong><br/>',
+      escapedMessage,
+      '</p>'
+    ].join('');
+
     await transporter.sendMail({
       from,
       to,
       subject: `New contact from ${name} <${email}>`,
       text: message,
-      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong><br/>${String(message).replace(/\n/g, '<br/>')}</p>`,
+      html: htmlContent,
       replyTo: email,
     });
 
@@ -40,4 +54,13 @@ export async function POST(req: Request) {
     console.error('Contact API error:', err);
     return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
   }
+}
+
+function escapeHtml(unsafe: string): string {
+  return String(unsafe)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }

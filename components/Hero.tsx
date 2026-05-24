@@ -22,7 +22,7 @@ export default function Hero() {
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const currentTitle = titles[titleIndex];
+  const currentTitle = titles.find((_, index) => index === titleIndex) || "";
 
   const typeEffect = useCallback(() => {
     if (!isDeleting) {
