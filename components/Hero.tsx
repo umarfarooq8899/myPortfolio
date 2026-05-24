@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { ChevronDown } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Dynamically import Three.js scene to avoid SSR issues
 const WireframeScene = dynamic(() => import("./WireframeScene"), {
@@ -15,9 +16,11 @@ const WireframeScene = dynamic(() => import("./WireframeScene"), {
   ),
 });
 
-const titles = ["MERN Stack Developer", "React Specialist", "Node.js Engineer"];
-
 export default function Hero() {
+  const { t } = useLanguage();
+  const hero = t("hero");
+  const titles = [hero.mern, hero.react, hero.node];
+
   const [titleIndex, setTitleIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -43,7 +46,7 @@ export default function Hero() {
         setTitleIndex((prev) => (prev + 1) % titles.length);
       }
     }
-  }, [displayText, isDeleting, currentTitle]);
+  }, [displayText, isDeleting, currentTitle, titles.length]);
 
   useEffect(() => {
     const timeout = setTimeout(typeEffect, 0);
@@ -75,14 +78,14 @@ export default function Hero() {
               transition={{ delay: 0.3 }}
               className="font-mono text-sm text-cyan-neon/80 mb-4 tracking-widest uppercase"
             >
-              &lt;Hello World /&gt;
+              {hero.hello}
             </motion.p>
 
             {/* Name */}
             <h1 className="font-grotesk text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-[0.95] tracking-tight mb-6">
-              UMAR
+              {hero.firstName}
               <br />
-              <span className="gradient-text">FAROOQ</span>
+              <span className="gradient-text">{hero.lastName}</span>
             </h1>
 
             {/* Typewriter */}
@@ -101,8 +104,7 @@ export default function Hero() {
               transition={{ delay: 0.6 }}
               className="text-text-primary/60 text-base sm:text-lg max-w-md leading-relaxed mb-10"
             >
-              Crafting scalable digital experiences with MongoDB, Express.js,
-              React, and Node.js — the complete MERN stack.
+              {hero.desc}
             </motion.p>
 
             {/* CTAs */}
@@ -116,7 +118,7 @@ export default function Hero() {
                 href="#projects"
                 className="group relative px-7 py-3 bg-cyan-neon/10 text-cyan-neon font-grotesk text-sm rounded-lg glow-border hover:bg-cyan-neon/15 transition-all duration-300"
               >
-                View Projects
+                {hero.viewProjects}
                 <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">
                   →
                 </span>
@@ -125,7 +127,7 @@ export default function Hero() {
                 href="#contact"
                 className="px-7 py-3 text-text-primary/70 font-grotesk text-sm rounded-lg border border-text-primary/10 hover:border-violet-bright/50 hover:text-violet-bright hover:shadow-[0_0_15px_rgba(168,85,247,0.1)] transition-all duration-300"
               >
-                Get In Touch
+                {hero.getInTouch}
               </a>
             </motion.div>
           </motion.div>
@@ -150,7 +152,7 @@ export default function Hero() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
         <span className="text-xs font-mono text-text-muted tracking-widest uppercase">
-          Scroll
+          {hero.scroll}
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}

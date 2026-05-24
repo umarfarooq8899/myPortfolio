@@ -3,17 +3,20 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-
-const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "Expertise", href: "#expertise" },
-  { label: "Contact", href: "#contact" },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
+  const nav = t("navbar");
+
+  const navLinks = [
+    { label: nav.about, href: "#about" },
+    { label: nav.projects, href: "#projects" },
+    { label: nav.expertise, href: "#expertise" },
+    { label: nav.contact, href: "#contact" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -44,33 +47,95 @@ export default function Navbar() {
           </a>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="relative px-4 py-2 text-sm font-grotesk text-text-primary/70 hover:text-cyan-neon transition-colors duration-300 group"
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              {navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="relative px-4 py-2 text-sm font-grotesk text-text-primary/70 hover:text-cyan-neon transition-colors duration-300 group"
+                >
+                  {link.label}
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-cyan-neon transition-all duration-300 group-hover:w-3/4" />
+                </a>
+              ))}
+            </div>
+
+            {/* Language Switcher */}
+            <div className="flex items-center bg-slate/60 border border-text-primary/10 rounded-lg p-0.5 relative overflow-hidden h-8">
+              <button
+                onClick={() => setLanguage("en")}
+                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
+                  language === "en" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
+                }`}
               >
-                {link.label}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-cyan-neon transition-all duration-300 group-hover:w-3/4" />
-              </a>
-            ))}
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage("es")}
+                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
+                  language === "es" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
+                }`}
+              >
+                ES
+              </button>
+              {/* Sliding highlight */}
+              <motion.div
+                className="absolute top-0.5 bottom-0.5 rounded-[5px] bg-cyan-neon/10 border border-cyan-neon/20"
+                animate={{
+                  left: language === "en" ? "2px" : "calc(50% + 1px)",
+                  right: language === "en" ? "calc(50% + 1px)" : "2px",
+                }}
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            </div>
+
             <a
               href="#contact"
-              className="ml-4 px-5 py-2 text-sm font-grotesk glow-border rounded-lg text-cyan-neon hover:bg-cyan-neon/5 transition-all duration-300"
+              className="px-5 py-2 text-sm font-grotesk glow-border rounded-lg text-cyan-neon hover:bg-cyan-neon/5 transition-all duration-300"
             >
-              Let&apos;s Talk
+              {nav.letsTalk}
             </a>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-text-primary hover:text-cyan-neon transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="md:hidden flex items-center gap-3">
+            {/* Language Switcher (Mobile) */}
+            <div className="flex items-center bg-slate/60 border border-text-primary/10 rounded-lg p-0.5 relative overflow-hidden h-8">
+              <button
+                onClick={() => setLanguage("en")}
+                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
+                  language === "en" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage("es")}
+                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
+                  language === "es" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
+                }`}
+              >
+                ES
+              </button>
+              <motion.div
+                className="absolute top-0.5 bottom-0.5 rounded-[5px] bg-cyan-neon/10 border border-cyan-neon/20"
+                animate={{
+                  left: language === "en" ? "2px" : "calc(50% + 1px)",
+                  right: language === "en" ? "calc(50% + 1px)" : "2px",
+                }}
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              />
+            </div>
+
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="text-text-primary hover:text-cyan-neon transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </motion.nav>
 
@@ -97,6 +162,16 @@ export default function Navbar() {
                 {link.label}
               </motion.a>
             ))}
+            <motion.a
+              href="#contact"
+              onClick={() => setMobileOpen(false)}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: navLinks.length * 0.1 }}
+              className="px-6 py-2.5 text-base font-grotesk glow-border rounded-lg text-cyan-neon hover:bg-cyan-neon/5 transition-all duration-300"
+            >
+              {nav.letsTalk}
+            </motion.a>
           </motion.div>
         )}
       </AnimatePresence>

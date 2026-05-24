@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const orbitItems = [
   { label: "MongoDB", color: "#47A248", angle: 0, radius: 130, speed: 20, icon: "🍃" },
@@ -19,6 +20,8 @@ const extraTech = [
 export default function TechOrbit() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { t } = useLanguage();
+  const tech = t("tech");
 
   return (
     <section id="expertise" className="relative py-24 sm:py-32" ref={ref}>
@@ -26,7 +29,7 @@ export default function TechOrbit() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="flex items-center gap-3 mb-16">
           <span className="font-mono text-xs text-cyan-neon tracking-widest uppercase">03</span>
           <span className="w-12 h-px bg-cyan-neon/30" />
-          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">Expertise</span>
+          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">{tech.sectionTitle}</span>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -42,7 +45,7 @@ export default function TechOrbit() {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-cyan-neon/20 to-violet-bright/20 flex items-center justify-center border border-cyan-neon/20 animate-glow-pulse">
-                    <span className="font-grotesk text-lg sm:text-xl font-bold text-white text-center leading-tight">Core<br/>Stack</span>
+                    <span className="font-grotesk text-lg sm:text-xl font-bold text-white text-center leading-tight whitespace-pre-line">{tech.coreStack}</span>
                   </div>
                 </div>
               </div>
@@ -77,10 +80,10 @@ export default function TechOrbit() {
           {/* Tech Tags */}
           <motion.div initial={{ opacity: 0, x: 30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.3 }}>
             <h3 className="font-grotesk text-3xl sm:text-4xl font-bold text-white mb-4">
-              Tools & <span className="gradient-text">Technologies</span>
+              {tech.toolsTitle} <span className="gradient-text">{tech.toolsSubtitle}</span>
             </h3>
             <p className="text-text-primary/60 mb-8 leading-relaxed">
-              A comprehensive MERN stack toolkit for building modern, scalable full-stack web applications — from React frontends to Node.js backends with MongoDB databases.
+              {tech.desc}
             </p>
             <div className="flex flex-wrap gap-3">
               {extraTech.map((tech, i) => (

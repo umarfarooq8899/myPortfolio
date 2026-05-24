@@ -2,66 +2,25 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { ExternalLink, Bot, BarChart3, Building2 } from "lucide-react";
+import { ExternalLink, Bot, BarChart3, Building2, LucideIcon } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const GithubIcon = ({ size = 16 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
 );
 
-const projects = [
-  {
-    title: "umii",
-    subtitle: "E-Commerce Platform",
-    description: "Modern clothing e-commerce platform offering a curated selection of apparel with a seamless shopping experience.",
-    tags: ["React", "Node.js", "MongoDB", "Express.js"],
-    icon: Building2,
-    accent: "cyan",
-    featured: true,
-    link: "https://umii-zvz9.vercel.app/",
-  },
-  {
-    title: "AI Disaster Relief System",
-    subtitle: "AI Relief System",
-    description: "An advanced platform for disaster prediction and relief coordination, utilizing machine learning algorithms to forecast and manage emergency responses.",
-    tags: ["MongoDB", "Express.js", "React", "Node.js"],
-    icon: Bot,
-    accent: "violet",
-    featured: false,
-    link: "https://ai-disaster-nu.vercel.app/",
-  },
-  {
-    title: "Umii Shoes",
-    subtitle: "Luxury Footwear Store",
-    description: "A premium e-commerce storefront for luxury footwear, featuring elegant UI design, smooth animations, and optimized performance.",
-    tags: ["React", "Express.js", "MongoDB", "Tailwind CSS"],
-    icon: BarChart3,
-    accent: "cyan",
-    featured: false,
-    link: "https://umii-footwear.vercel.app/",
-  },
-    {
-    title: "Margala estate",
-    subtitle: "Real Estate Platform",
-    description: "A premium real estate platform showcasing properties in the Margala Hills, featuring elegant UI design, smooth animations, and optimized performance.",
-    tags: ["React", "Express.js", "MongoDB", "Tailwind CSS"],
-    icon: BarChart3,
-    accent: "cyan",
-    featured: false,
-    link: "https://margala-estate.vercel.app/",
-  },
- {
-    title: "Safar Bot",
-    subtitle: "AI based bus ticket booking application",
-    description: "An advanced platform for bus ticket booking, utilizing machine learning algorithms to forecast and manage emergency responses.",
-    tags: ["MongoDB", "Express.js", "React", "Node.js","Tailwind CSS"],
-    icon: Bot,
-    accent: "violet",
-    featured: false,
-    link: "https://safar-bot.vercel.app/",
-  },  
-];
+interface ProjectItem {
+  title: string;
+  subtitle: string;
+  description: string;
+  tags: string[];
+  icon: LucideIcon;
+  accent: string;
+  featured: boolean;
+  link: string;
+}
 
-function ProjectCard({ project, index, isInView }: { project: typeof projects[0]; index: number; isInView: boolean }) {
+function ProjectCard({ project, index, isInView }: { project: ProjectItem; index: number; isInView: boolean }) {
   const isCyan = project.accent === "cyan";
 
   return (
@@ -119,6 +78,61 @@ function ProjectCard({ project, index, isInView }: { project: typeof projects[0]
 export default function Projects() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { t } = useLanguage();
+  const projTranslations = t("projects");
+
+  const projects: ProjectItem[] = [
+    {
+      title: "umii",
+      subtitle: projTranslations.umii.subtitle,
+      description: projTranslations.umii.description,
+      tags: ["React", "Node.js", "MongoDB", "Express.js"],
+      icon: Building2,
+      accent: "cyan",
+      featured: true,
+      link: "https://umii-zvz9.vercel.app/",
+    },
+    {
+      title: "AI Disaster Relief System",
+      subtitle: projTranslations.aiDisaster.subtitle,
+      description: projTranslations.aiDisaster.description,
+      tags: ["MongoDB", "Express.js", "React", "Node.js"],
+      icon: Bot,
+      accent: "violet",
+      featured: false,
+      link: "https://ai-disaster-nu.vercel.app/",
+    },
+    {
+      title: "Umii Shoes",
+      subtitle: projTranslations.umiiShoes.subtitle,
+      description: projTranslations.umiiShoes.description,
+      tags: ["React", "Express.js", "MongoDB", "Tailwind CSS"],
+      icon: BarChart3,
+      accent: "cyan",
+      featured: false,
+      link: "https://umii-footwear.vercel.app/",
+    },
+    {
+      title: "Margala estate",
+      subtitle: projTranslations.margalaEstate.subtitle,
+      description: projTranslations.margalaEstate.description,
+      tags: ["React", "Express.js", "MongoDB", "Tailwind CSS"],
+      icon: BarChart3,
+      accent: "cyan",
+      featured: false,
+      link: "https://margala-estate.vercel.app/",
+    },
+    {
+      title: "Safar Bot",
+      subtitle: projTranslations.safarBot.subtitle,
+      description: projTranslations.safarBot.description,
+      tags: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"],
+      icon: Bot,
+      accent: "violet",
+      featured: false,
+      link: "https://safar-bot.vercel.app/",
+    },
+  ];
 
   return (
     <section id="projects" className="relative py-24 sm:py-32" ref={ref}>
@@ -126,7 +140,7 @@ export default function Projects() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="flex items-center gap-3 mb-16">
           <span className="font-mono text-xs text-cyan-neon tracking-widest uppercase">02</span>
           <span className="w-12 h-px bg-cyan-neon/30" />
-          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">Projects</span>
+          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">{projTranslations.sectionTitle}</span>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">

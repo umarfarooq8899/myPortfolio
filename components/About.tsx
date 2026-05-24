@@ -3,17 +3,20 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Code2, Layers, Zap, Coffee } from "lucide-react";
-
-const stats = [
-  { icon: Code2, value: "7+", label: "Projects Built" },
-  { icon: Layers, value: "5+", label: "Months Exp" },
-  { icon: Zap, value: "15+", label: "Tech Stack" },
-  { icon: Coffee, value: "∞", label: "Coffee Cups" },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function About() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { t } = useLanguage();
+  const about = t("about");
+
+  const stats = [
+    { icon: Code2, value: "7+", label: about.projectsBuilt },
+    { icon: Layers, value: "5+", label: about.monthsExp },
+    { icon: Zap, value: "15+", label: about.techStack },
+    { icon: Coffee, value: "∞", label: about.coffeeCups },
+  ];
 
   return (
     <section id="about" className="relative py-24 sm:py-32" ref={ref}>
@@ -21,17 +24,17 @@ export default function About() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="flex items-center gap-3 mb-16">
           <span className="font-mono text-xs text-cyan-neon tracking-widest uppercase">01</span>
           <span className="w-12 h-px bg-cyan-neon/30" />
-          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">About</span>
+          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">{about.sectionTitle}</span>
         </motion.div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }} className="lg:col-span-2 glass-card p-8 sm:p-10">
             <h2 className="font-grotesk text-3xl sm:text-4xl font-bold text-white mb-6">
-              Building the future,<br /><span className="gradient-text-cyan">one line at a time.</span>
+              {about.heading1}<br /><span className="gradient-text-cyan">{about.heading2}</span>
             </h2>
             <div className="space-y-4 text-text-primary/70 leading-relaxed">
-              <p>I&apos;m a MERN Stack Developer with a passion for building scalable, production-grade web applications. My work spans from designing elegant React frontends to architecting robust Node.js and Express.js backend systems with MongoDB databases.</p>
-              <p>With deep expertise in the MERN ecosystem — MongoDB, Express.js, React, and Node.js — I craft full-stack digital experiences that are not only visually stunning but also performant and accessible.</p>
-              <p>When I&apos;m not coding, you&apos;ll find me exploring new JavaScript libraries, building REST APIs, or deep-diving into database optimization and application architecture.</p>
+              <p>{about.para1}</p>
+              <p>{about.para2}</p>
+              <p>{about.para3}</p>
             </div>
           </motion.div>
           <div className="grid grid-cols-2 gap-4 sm:gap-6">

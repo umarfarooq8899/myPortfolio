@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Send, Mail } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const GithubIcon = ({ size = 22 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -19,6 +20,8 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
+  const contact = t("contact");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
@@ -40,7 +43,7 @@ export default function Contact() {
       setSuccess(true);
       setFormState({ name: '', email: '', message: '' });
     } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message || contact.errorMsg);
     } finally {
       setLoading(false);
     }
@@ -59,17 +62,17 @@ export default function Contact() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.5 }} className="flex items-center gap-3 mb-16">
           <span className="font-mono text-xs text-cyan-neon tracking-widest uppercase">04</span>
           <span className="w-12 h-px bg-cyan-neon/30" />
-          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">Contact</span>
+          <span className="font-mono text-xs text-text-muted tracking-widest uppercase">{contact.sectionTitle}</span>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Left — Info */}
           <motion.div initial={{ opacity: 0, x: -30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }}>
             <h2 className="font-grotesk text-4xl sm:text-5xl font-bold text-white mb-6">
-              Let&apos;s build<br /><span className="gradient-text">something great.</span>
+              {contact.heading1}<br /><span className="gradient-text">{contact.heading2}</span>
             </h2>
             <p className="text-text-primary/60 leading-relaxed mb-10 max-w-md">
-              Have a project in mind or want to collaborate? I&apos;m always open to discussing new opportunities, creative ideas, or just a friendly chat.
+              {contact.desc}
             </p>
             <div className="flex gap-4">
               {socials.map((s) => (
@@ -83,21 +86,21 @@ export default function Contact() {
           {/* Right — Form */}
           <motion.form initial={{ opacity: 0, x: 30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">Name</label>
-              <input type="text" name="name" value={formState.name} onChange={handleChange} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 placeholder:text-text-muted/40" placeholder="Your name" />
+              <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">{contact.nameLabel}</label>
+              <input type="text" name="name" value={formState.name} onChange={handleChange} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 placeholder:text-text-muted/40" placeholder={contact.namePlaceholder} />
             </div>
             <div>
-              <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">Email</label>
-              <input type="email" name="email" value={formState.email} onChange={handleChange} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 placeholder:text-text-muted/40" placeholder="your@email.com" />
+              <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">{contact.emailLabel}</label>
+              <input type="email" name="email" value={formState.email} onChange={handleChange} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 placeholder:text-text-muted/40" placeholder={contact.emailPlaceholder} />
             </div>
             <div>
-              <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">Message</label>
-              <textarea name="message" value={formState.message} onChange={handleChange} rows={5} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 resize-none placeholder:text-text-muted/40" placeholder="Tell me about your project..." />
+              <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">{contact.messageLabel}</label>
+              <textarea name="message" value={formState.message} onChange={handleChange} rows={5} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 resize-none placeholder:text-text-muted/40" placeholder={contact.messagePlaceholder} />
             </div>
-            {success && <p className="text-sm text-green-400">Message sent — thank you!</p>}
+            {success && <p className="text-sm text-green-400">{contact.successMsg}</p>}
             {error && <p className="text-sm text-red-400">{error}</p>}
             <button type="submit" disabled={loading} className="group flex items-center gap-3 px-7 py-3 bg-cyan-neon/10 text-cyan-neon font-grotesk text-sm rounded-lg glow-border hover:bg-cyan-neon/15 transition-all duration-300">
-              {loading ? 'Sending...' : 'Send Message'}
+              {loading ? contact.sendingBtn : contact.sendBtn}
               <Send size={16} className="transition-transform group-hover:translate-x-1" />
             </button>
           </motion.form>
