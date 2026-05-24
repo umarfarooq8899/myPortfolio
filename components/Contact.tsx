@@ -16,9 +16,34 @@ export default function Contact() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [formState, setFormState] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formState),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to send message');
+      setSuccess(true);
+      setFormState({ name: '', email: '', message: '' });
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const socials = [
@@ -56,7 +81,7 @@ export default function Contact() {
           </motion.div>
 
           {/* Right — Form */}
-          <motion.form initial={{ opacity: 0, x: 30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <motion.form initial={{ opacity: 0, x: 30 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.2 }} className="space-y-5" onSubmit={handleSubmit}>
             <div>
               <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">Name</label>
               <input type="text" name="name" value={formState.name} onChange={handleChange} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 placeholder:text-text-muted/40" placeholder="Your name" />
@@ -69,8 +94,10 @@ export default function Contact() {
               <label className="block font-mono text-xs text-text-muted mb-2 tracking-wider uppercase">Message</label>
               <textarea name="message" value={formState.message} onChange={handleChange} rows={5} className="w-full bg-slate/50 border border-text-primary/10 rounded-lg px-4 py-3 text-white font-grotesk text-sm focus:outline-none focus:border-cyan-neon/50 focus:shadow-[0_0_15px_rgba(102,252,241,0.1)] transition-all duration-300 resize-none placeholder:text-text-muted/40" placeholder="Tell me about your project..." />
             </div>
-            <button type="submit" className="group flex items-center gap-3 px-7 py-3 bg-cyan-neon/10 text-cyan-neon font-grotesk text-sm rounded-lg glow-border hover:bg-cyan-neon/15 transition-all duration-300">
-              Send Message
+            {success && <p className="text-sm text-green-400">Message sent — thank you!</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            <button type="submit" disabled={loading} className="group flex items-center gap-3 px-7 py-3 bg-cyan-neon/10 text-cyan-neon font-grotesk text-sm rounded-lg glow-border hover:bg-cyan-neon/15 transition-all duration-300">
+              {loading ? 'Sending...' : 'Send Message'}
               <Send size={16} className="transition-transform group-hover:translate-x-1" />
             </button>
           </motion.form>
