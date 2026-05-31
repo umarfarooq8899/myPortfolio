@@ -42,8 +42,9 @@ export default function Contact() {
       if (!res.ok) throw new Error(data?.error || 'Failed to send message');
       setSuccess(true);
       setFormState({ name: '', email: '', message: '' });
-    } catch (err: any) {
-      setError(err.message || contact.errorMsg);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage || contact.errorMsg);
     } finally {
       setLoading(false);
     }

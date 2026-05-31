@@ -50,7 +50,7 @@ interface TranslationDictionary {
       subtitle: string;
       description: string;
     };
-    margalaEstate: {
+    margallaEstate: {
       subtitle: string;
       description: string;
     };
@@ -135,13 +135,13 @@ const translations: Record<Language, TranslationDictionary> = {
         subtitle: "Luxury Footwear Store",
         description: "A premium e-commerce storefront for luxury footwear, featuring elegant UI design, smooth animations, and optimized performance.",
       },
-      margalaEstate: {
+      margallaEstate: {
         subtitle: "Real Estate Platform",
-        description: "A premium real estate platform showcasing properties in the Margala Hills, featuring elegant UI design, smooth animations, and optimized performance.",
+        description: "A premium real estate platform showcasing properties in the Margalla Hills, featuring elegant UI design, smooth animations, and optimized performance.",
       },
       safarBot: {
-        subtitle: "AI based bus ticket booking application",
-        description: "An advanced platform for bus ticket booking, utilizing machine learning algorithms to forecast and manage emergency responses.",
+        subtitle: "AI-based Bus Booking Bot",
+        description: "An AI-powered conversational bot for seamless bus ticket booking, helping users find routes, check schedules, and reserve seats with ease.",
       },
     },
     tech: {
@@ -218,13 +218,13 @@ const translations: Record<Language, TranslationDictionary> = {
         subtitle: "Tienda de Calzado de Lujo",
         description: "Una tienda de comercio electrónico premium para calzado de lujo, que presenta un diseño de interfaz de usuario elegante, animaciones fluidas y rendimiento optimizado.",
       },
-      margalaEstate: {
+      margallaEstate: {
         subtitle: "Plataforma de Bienes Raíces",
-        description: "Una plataforma inmobiliaria premium que muestra propiedades en Margala Hills, con un diseño de interfaz de usuario elegante, animaciones fluidas y rendimiento optimizado.",
+        description: "Una plataforma inmobiliaria premium que muestra propiedades en Margalla Hills, con un diseño de interfaz de usuario elegante, animaciones fluidas y rendimiento optimizado.",
       },
       safarBot: {
-        subtitle: "Aplicación de reserva de autobuses con IA",
-        description: "Una plataforma avanzada para la reserva de boletos de autobús, que utiliza algoritmos de aprendizaje automático para pronosticar y gestionar respuestas de emergencia.",
+        subtitle: "Bot de Reserva de Autobuses con IA",
+        description: "Un asistente conversacional inteligente para la reserva de boletos de autobús, que ayuda a los usuarios a consultar horarios, encontrar rutas y asegurar asientos sin esfuerzo.",
       },
     },
     tech: {
@@ -288,7 +288,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   const t = <T extends keyof TranslationDictionary>(
     section: T
   ): TranslationDictionary[T] => {
-    return translations[language][section];
+    const dict = translations[language];
+    const key = section as string;
+    if (key === "__proto__" || key === "constructor") {
+      throw new Error("Unsafe property access");
+    }
+    if (Object.prototype.hasOwnProperty.call(dict, section)) {
+      return dict[section];
+    }
+    throw new Error(`Invalid translation section: ${section}`);
   };
 
   return (
