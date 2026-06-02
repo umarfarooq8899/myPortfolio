@@ -8,7 +8,7 @@ import { useLanguage } from "@/context/LanguageContext";
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const nav = t("navbar");
 
   const navLinks = [
@@ -61,34 +61,6 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Language Switcher */}
-            <div className="flex items-center bg-slate/60 border border-text-primary/10 rounded-lg p-0.5 relative overflow-hidden h-8">
-              <button
-                onClick={() => setLanguage("en")}
-                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
-                  language === "en" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage("es")}
-                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
-                  language === "es" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
-                }`}
-              >
-                ES
-              </button>
-              {/* Sliding highlight */}
-              <motion.div
-                className="absolute top-0.5 bottom-0.5 rounded-[5px] bg-cyan-neon/10 border border-cyan-neon/20"
-                animate={{
-                  left: language === "en" ? "2px" : "calc(50% + 1px)",
-                  right: language === "en" ? "calc(50% + 1px)" : "2px",
-                }}
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            </div>
 
             <a
               href="#contact"
@@ -100,33 +72,6 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-3">
-            {/* Language Switcher (Mobile) */}
-            <div className="flex items-center bg-slate/60 border border-text-primary/10 rounded-lg p-0.5 relative overflow-hidden h-8">
-              <button
-                onClick={() => setLanguage("en")}
-                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
-                  language === "en" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage("es")}
-                className={`relative z-10 px-2.5 py-1 text-[11px] font-mono tracking-wider transition-colors duration-300 ${
-                  language === "es" ? "text-cyan-neon font-bold" : "text-text-muted hover:text-white"
-                }`}
-              >
-                ES
-              </button>
-              <motion.div
-                className="absolute top-0.5 bottom-0.5 rounded-[5px] bg-cyan-neon/10 border border-cyan-neon/20"
-                animate={{
-                  left: language === "en" ? "2px" : "calc(50% + 1px)",
-                  right: language === "en" ? "calc(50% + 1px)" : "2px",
-                }}
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            </div>
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
