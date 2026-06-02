@@ -83,24 +83,24 @@ export default function Projects() {
 
   const projects: ProjectItem[] = [
     {
+      title: "Safar Bot",
+      subtitle: projTranslations.safarBot.subtitle,
+      description: projTranslations.safarBot.description,
+      tags: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"],
+      icon: Compass,
+      accent: "violet",
+      featured: true,
+      link: "https://safar-bot.vercel.app/",
+    },
+    {
       title: "umii",
       subtitle: projTranslations.umii.subtitle,
       description: projTranslations.umii.description,
       tags: ["React", "Node.js", "MongoDB", "Express.js"],
       icon: ShoppingBag,
       accent: "cyan",
-      featured: true,
-      link: "https://umii-zvz9.vercel.app/",
-    },
-    {
-      title: "AI Disaster Relief System",
-      subtitle: projTranslations.aiDisaster.subtitle,
-      description: projTranslations.aiDisaster.description,
-      tags: ["MongoDB", "Express.js", "React", "Node.js"],
-      icon: ShieldAlert,
-      accent: "violet",
       featured: false,
-      link: "https://ai-disaster-nu.vercel.app/",
+      link: "https://umii-zvz9.vercel.app/",
     },
     {
       title: "Umii Shoes",
@@ -113,6 +113,16 @@ export default function Projects() {
       link: "https://umii-footwear.vercel.app/",
     },
     {
+      title: "AI Disaster Relief System",
+      subtitle: projTranslations.aiDisaster.subtitle,
+      description: projTranslations.aiDisaster.description,
+      tags: ["MongoDB", "Express.js", "React", "Node.js"],
+      icon: ShieldAlert,
+      accent: "violet",
+      featured: false,
+      link: "https://ai-disaster-nu.vercel.app/",
+    },
+    {
       title: "Margalla Estates",
       subtitle: projTranslations.margallaEstate.subtitle,
       description: projTranslations.margallaEstate.description,
@@ -121,16 +131,6 @@ export default function Projects() {
       accent: "cyan",
       featured: false,
       link: "https://margalla-estates.vercel.app/",
-    },
-    {
-      title: "Safar Bot",
-      subtitle: projTranslations.safarBot.subtitle,
-      description: projTranslations.safarBot.description,
-      tags: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"],
-      icon: Compass,
-      accent: "violet",
-      featured: false,
-      link: "https://safar-bot.vercel.app/",
     },
   ];
 
