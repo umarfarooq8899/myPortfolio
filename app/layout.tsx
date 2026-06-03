@@ -3,15 +3,15 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Umar Farooq | Full Stack Architect & AI Automation Expert",
+  title: "Umar Farooq | Full Stack Architect",
   description:
-    "Portfolio of Umar Farooq — Full Stack Developer specializing in Next.js, React, Node.js, AI automation, and scalable web applications.",
+    "Portfolio of Umar Farooq — Full Stack Developer specializing in Next.js, React, Node.js, and scalable web applications.",
   keywords: [
     "Umar Farooq",
     "Full Stack Developer",
     "Next.js",
     "React",
-    "AI Automation",
+  
     "Portfolio",
     "Web Developer",
     "Node.js",
@@ -20,14 +20,14 @@ export const metadata: Metadata = {
   authors: [{ name: "Umar Farooq" }],
   openGraph: {
     title: "Umar Farooq | Full Stack Architect",
-    description: "Crafting scalable digital experiences with modern web technologies and AI automation.",
+    description: "Crafting scalable digital experiences with modern web technologies ",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "Umar Farooq | Full Stack Architect",
-    description: "Crafting scalable digital experiences with modern web technologies and AI automation.",
+    description: "Crafting scalable digital experiences with modern web technologies",
   },
 };
 
