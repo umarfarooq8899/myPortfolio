@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { LanguageProvider } from "@/context/LanguageContext";
 import "./globals.css";
 
@@ -50,6 +51,8 @@ export default function RootLayout({
       <body className="noise-overlay antialiased">
         <LanguageProvider>{children}</LanguageProvider>
       </body>
+
+      <GoogleAnalytics gaId="G-YV7KJ8QWKV" />
     </html>
   );
 }
