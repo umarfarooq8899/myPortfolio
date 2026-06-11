@@ -4,6 +4,8 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Code2, Layers, Zap, Coffee } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import TiltCard from "./TiltCard";
+import TextReveal from "./TextReveal";
 
 export default function About() {
   const ref = useRef(null);
@@ -29,7 +31,9 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }} className="lg:col-span-2 glass-card p-8 sm:p-10">
             <h2 className="font-grotesk text-3xl sm:text-4xl font-bold text-white mb-6">
-              {about.heading1}<br /><span className="gradient-text-cyan">{about.heading2}</span>
+              <TextReveal text={about.heading1} type="word" />
+              <br />
+              <TextReveal text={about.heading2} type="word" className="gradient-text-cyan" />
             </h2>
             <div className="space-y-4 text-text-primary/70 leading-relaxed">
               <p>{about.para1}</p>
@@ -39,10 +43,18 @@ export default function About() {
           </motion.div>
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
             {stats.map((stat, i) => (
-              <motion.div key={stat.label} initial={{ opacity: 0, scale: 0.9 }} animate={isInView ? { opacity: 1, scale: 1 } : {}} transition={{ duration: 0.4, delay: 0.2 + i * 0.1 }} className="glass-card p-5 sm:p-6 flex flex-col items-center justify-center text-center group">
-                <stat.icon size={22} className="text-cyan-neon/60 mb-3 group-hover:text-cyan-neon transition-colors duration-300" />
-                <span className="font-grotesk text-2xl sm:text-3xl font-bold text-white">{stat.value}</span>
-                <span className="font-mono text-[10px] sm:text-xs text-text-muted mt-1 tracking-wider uppercase">{stat.label}</span>
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ duration: 0.4, delay: 0.2 + i * 0.1 }}
+                className="h-full"
+              >
+                <TiltCard className="glass-card p-5 sm:p-6 flex flex-col items-center justify-center text-center group h-full" maxTilt={15}>
+                  <stat.icon size={22} className="text-cyan-neon/60 mb-3 group-hover:text-cyan-neon transition-colors duration-300" />
+                  <span className="font-grotesk text-2xl sm:text-3xl font-bold text-white">{stat.value}</span>
+                  <span className="font-mono text-[10px] sm:text-xs text-text-muted mt-1 tracking-wider uppercase">{stat.label}</span>
+                </TiltCard>
               </motion.div>
             ))}
           </div>

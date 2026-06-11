@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import Magnetic from "./Magnetic";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -38,36 +39,40 @@ export default function Navbar() {
       >
         <div className="section-container flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <a href="#" className="relative group">
-            <span className="font-mono text-lg sm:text-xl font-bold text-white tracking-wider">
-              UF
-              <span className="text-cyan-neon">.</span>
-            </span>
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-neon transition-all duration-300 group-hover:w-full" />
-          </a>
+          <Magnetic range={40} strength={0.3}>
+            <a href="#" className="relative group">
+              <span className="font-mono text-lg sm:text-xl font-bold text-white tracking-wider animate-pulse">
+                UF
+                <span className="text-cyan-neon">.</span>
+              </span>
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-cyan-neon transition-all duration-300 group-hover:w-full" />
+            </a>
+          </Magnetic>
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-1">
               {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="relative px-4 py-2 text-sm font-grotesk text-text-primary/70 hover:text-cyan-neon transition-colors duration-300 group"
-                >
-                  {link.label}
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-cyan-neon transition-all duration-300 group-hover:w-3/4" />
-                </a>
+                <Magnetic key={link.label} range={30} strength={0.25}>
+                  <a
+                    href={link.href}
+                    className="relative px-4 py-2 text-sm font-grotesk text-text-primary/70 hover:text-cyan-neon transition-colors duration-300 group"
+                  >
+                    {link.label}
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-cyan-neon transition-all duration-300 group-hover:w-3/4" />
+                  </a>
+                </Magnetic>
               ))}
             </div>
 
-
-            <a
-              href="#contact"
-              className="px-5 py-2 text-sm font-grotesk glow-border rounded-lg text-cyan-neon hover:bg-cyan-neon/5 transition-all duration-300"
-            >
-              {nav.letsTalk}
-            </a>
+            <Magnetic range={50} strength={0.35}>
+              <a
+                href="#contact"
+                className="px-5 py-2 text-sm font-grotesk glow-border rounded-lg text-cyan-neon hover:bg-cyan-neon/5 transition-all duration-300"
+              >
+                {nav.letsTalk}
+              </a>
+            </Magnetic>
           </div>
 
           {/* Mobile Menu Button */}

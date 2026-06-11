@@ -7,6 +7,8 @@ import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 import dynamic from "next/dynamic";
+import Magnetic from "./Magnetic";
+import TextReveal from "./TextReveal";
 
 const WireframeScene = dynamic(() => import("./WireframeScene"), { ssr: false });
 
@@ -77,9 +79,9 @@ export default function Hero() {
 
             {/* Name */}
             <h1 className="font-grotesk text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-[0.95] tracking-tight mb-6">
-              {hero.firstName}
+              <TextReveal text={hero.firstName} type="char" delay={0.4} />
               <br />
-              <span className="gradient-text">{hero.lastName}</span>
+              <TextReveal text={hero.lastName} type="char" delay={0.55} className="gradient-text" />
             </h1>
 
             {/* Typewriter */}
@@ -108,21 +110,25 @@ export default function Hero() {
               transition={{ delay: 0.8 }}
               className="flex flex-wrap gap-4"
             >
-              <a
-                href="#projects"
-                className="group relative px-7 py-3 bg-cyan-neon/10 text-cyan-neon font-grotesk text-sm rounded-lg glow-border hover:bg-cyan-neon/15 transition-all duration-300"
-              >
-                {hero.viewProjects}
-                <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">
-                  →
-                </span>
-              </a>
-              <a
-                href="#contact"
-                className="px-7 py-3 text-text-primary/70 font-grotesk text-sm rounded-lg border border-text-primary/10 hover:border-violet-bright/50 hover:text-violet-bright hover:shadow-[0_0_15px_rgba(168,85,247,0.1)] transition-all duration-300"
-              >
-                {hero.getInTouch}
-              </a>
+              <Magnetic range={50} strength={0.3}>
+                <a
+                  href="#projects"
+                  className="group relative px-7 py-3 bg-cyan-neon/10 text-cyan-neon font-grotesk text-sm rounded-lg glow-border hover:bg-cyan-neon/15 transition-all duration-300 block"
+                >
+                  {hero.viewProjects}
+                  <span className="inline-block ml-2 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </a>
+              </Magnetic>
+              <Magnetic range={50} strength={0.3}>
+                <a
+                  href="#contact"
+                  className="px-7 py-3 text-text-primary/70 font-grotesk text-sm rounded-lg border border-text-primary/10 hover:border-violet-bright/50 hover:text-violet-bright hover:shadow-[0_0_15px_rgba(168,85,247,0.1)] transition-all duration-300 block"
+                >
+                  {hero.getInTouch}
+                </a>
+              </Magnetic>
             </motion.div>
           </motion.div>
 
