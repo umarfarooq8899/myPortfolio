@@ -2,7 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { ExternalLink, Building2, ShoppingBag, ShoppingCart, ShieldAlert, Compass, LucideIcon } from "lucide-react";
+import { ExternalLink, Building2, ShoppingBag, ShoppingCart, ShieldAlert, Compass, Globe, LucideIcon } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import TiltCard from "./TiltCard";
 
@@ -90,6 +90,16 @@ export default function Projects() {
   const projTranslations = t("projects");
 
   const projects: ProjectItem[] = [
+    {
+      title: "Abdanix Solutions",
+      subtitle: projTranslations.abdanix.subtitle,
+      description: projTranslations.abdanix.description,
+      tags: ["React", "Vite", "Tailwind CSS", "TypeScript"],
+      icon: Globe,
+      accent: "cyan",
+      featured: true,
+      link: "https://www.abdanixsolutions.com/",
+    },
     {
       title: "Safar Bot",
       subtitle: projTranslations.safarBot.subtitle,

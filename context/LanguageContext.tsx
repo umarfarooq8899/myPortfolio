@@ -36,6 +36,10 @@ interface TranslationDictionary {
   };
   projects: {
     sectionTitle: string;
+    abdanix: {
+      subtitle: string;
+      description: string;
+    };
     umii: {
       subtitle: string;
       description: string;
@@ -120,6 +124,10 @@ const translations: TranslationDictionary = {
   },
   projects: {
     sectionTitle: "Projects",
+    abdanix: {
+      subtitle: "Software & AI Solutions",
+      description: "A professional software agency website offering custom web development, mobile apps, CRM systems, and AI-powered business solutions.",
+    },
     umii: {
       subtitle: "E-Commerce Platform",
       description: "Modern clothing e-commerce platform offering a curated selection of apparel with a seamless shopping experience.",

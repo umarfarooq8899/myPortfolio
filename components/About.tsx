@@ -50,10 +50,12 @@ export default function About() {
                 transition={{ duration: 0.4, delay: 0.2 + i * 0.1 }}
                 className="h-full"
               >
-                <TiltCard className="glass-card p-5 sm:p-6 flex flex-col items-center justify-center text-center group h-full" maxTilt={15}>
-                  <stat.icon size={22} className="text-cyan-neon/60 mb-3 group-hover:text-cyan-neon transition-colors duration-300" />
-                  <span className="font-grotesk text-2xl sm:text-3xl font-bold text-white">{stat.value}</span>
-                  <span className="font-mono text-[10px] sm:text-xs text-text-muted mt-1 tracking-wider uppercase">{stat.label}</span>
+                <TiltCard className="glass-card group h-full" maxTilt={15}>
+                  <div className="p-5 sm:p-6 flex flex-col items-center justify-center text-center h-full">
+                    <stat.icon size={22} className="text-cyan-neon/60 mb-3 group-hover:text-cyan-neon transition-colors duration-300" />
+                    <span className="font-grotesk text-2xl sm:text-3xl font-bold text-white">{stat.value}</span>
+                    <span className="font-mono text-[10px] sm:text-xs text-text-muted mt-1 tracking-wider uppercase">{stat.label}</span>
+                  </div>
                 </TiltCard>
               </motion.div>
             ))}
