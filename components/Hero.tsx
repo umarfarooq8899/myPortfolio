@@ -2,19 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
+
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
-// Dynamically import Three.js scene to avoid SSR issues
-const WireframeScene = dynamic(() => import("./WireframeScene"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-16 h-16 border border-cyan-neon/20 rounded-full animate-spin border-t-cyan-neon" />
-    </div>
-  ),
-});
+import dynamic from "next/dynamic";
+
+const WireframeScene = dynamic(() => import("./WireframeScene"), { ssr: false });
 
 export default function Hero() {
   const { t } = useLanguage();
