@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
-interface MagneticProps {
+export default function Magnetic({
+  children,
+  range = 60,
+  strength = 0.35,
+}: {
   children: React.ReactElement;
   range?: number;
   strength?: number;
-}
-
-export default function Magnetic({ children, range = 60, strength = 0.35 }: MagneticProps) {
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -18,37 +20,49 @@ export default function Magnetic({ children, range = 60, strength = 0.35 }: Magn
   const springX = useSpring(x, springOptions);
   const springY = useSpring(y, springOptions);
 
-  const [isHovered, setIsHovered] = useState(false);
-
   useEffect(() => {
     const currentRef = ref.current;
+    // rAF handle — ensures the mousemove handler runs at most once per
+    // animation frame regardless of how fast the browser fires the event.
+    // This fixes the issue where 5+ Magnetic instances each add their own
+    // unthrottled global listener, stacking synchronous JS on every mouse tick.
+    let rafId: number | null = null;
+    let latestEvent: MouseEvent | null = null;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!currentRef) return;
-      const { clientX, clientY } = e;
+    const processMove = () => {
+      rafId = null;
+      if (!currentRef || !latestEvent) return;
+
+      const { clientX, clientY } = latestEvent;
       const { left, top, width, height } = currentRef.getBoundingClientRect();
       const centerX = left + width / 2;
       const centerY = top + height / 2;
 
-      // Distance between cursor and button center
       const distanceX = clientX - centerX;
       const distanceY = clientY - centerY;
       const distance = Math.hypot(distanceX, distanceY);
 
       if (distance < range) {
-        setIsHovered(true);
-        // Magnetic pull toward cursor
         x.set(distanceX * strength);
         y.set(distanceY * strength);
       } else {
-        setIsHovered(false);
         x.set(0);
         y.set(0);
       }
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      latestEvent = e;
+      if (rafId === null) {
+        rafId = requestAnimationFrame(processMove);
+      }
+    };
+
     const handleMouseLeave = () => {
-      setIsHovered(false);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
       x.set(0);
       y.set(0);
     };
@@ -57,6 +71,7 @@ export default function Magnetic({ children, range = 60, strength = 0.35 }: Magn
     currentRef?.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", handleMouseMove);
       currentRef?.removeEventListener("mouseleave", handleMouseLeave);
     };
@@ -66,8 +81,6 @@ export default function Magnetic({ children, range = 60, strength = 0.35 }: Magn
     <motion.div
       ref={ref}
       style={{ x: springX, y: springY }}
-      animate={{ scale: isHovered ? 1.05 : 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="inline-block"
     >
       {children}
