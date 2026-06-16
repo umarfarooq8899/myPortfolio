@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-
 import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-
 import dynamic from "next/dynamic";
 import Magnetic from "./Magnetic";
 import TextReveal from "./TextReveal";
@@ -21,33 +19,47 @@ export default function Hero() {
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const currentTitle = titles.find((_, index) => index === titleIndex) || "";
-
-  const typeEffect = useCallback(() => {
-    if (!isDeleting) {
-      if (displayText.length < currentTitle.length) {
-        setTimeout(() => {
-          setDisplayText(currentTitle.slice(0, displayText.length + 1));
-        }, 80);
-      } else {
-        setTimeout(() => setIsDeleting(true), 2000);
-      }
-    } else {
-      if (displayText.length > 0) {
-        setTimeout(() => {
-          setDisplayText(currentTitle.slice(0, displayText.length - 1));
-        }, 40);
-      } else {
-        setIsDeleting(false);
-        setTitleIndex((prev) => (prev + 1) % titles.length);
-      }
-    }
-  }, [displayText, isDeleting, currentTitle, titles.length]);
+  // Use refs to track the current state values inside the interval callback
+  // without adding them as dependencies — this avoids the cascading
+  // re-render chain from the old setTimeout-inside-useCallback pattern.
+  const stateRef = useRef({ displayText: "", isDeleting: false, titleIndex: 0, titles });
 
   useEffect(() => {
-    const timeout = setTimeout(typeEffect, 0);
-    return () => clearTimeout(timeout);
-  }, [typeEffect]);
+    stateRef.current = { displayText, isDeleting, titleIndex, titles };
+  });
+
+  useEffect(() => {
+    const tick = () => {
+      const { displayText: dt, isDeleting: del, titleIndex: ti, titles: tl } = stateRef.current;
+      const currentTitle = tl[ti] ?? "";
+
+      if (!del) {
+        if (dt.length < currentTitle.length) {
+          setDisplayText(currentTitle.slice(0, dt.length + 1));
+          timer = setTimeout(tick, 80);
+        } else {
+          timer = setTimeout(() => {
+            setIsDeleting(true);
+            // After setting isDeleting, queue the next tick
+            timer = setTimeout(tick, 80);
+          }, 2000);
+        }
+      } else {
+        if (dt.length > 0) {
+          setDisplayText(currentTitle.slice(0, dt.length - 1));
+          timer = setTimeout(tick, 40);
+        } else {
+          setIsDeleting(false);
+          setTitleIndex((prev) => (prev + 1) % tl.length);
+          timer = setTimeout(tick, 80);
+        }
+      }
+    };
+
+    let timer = setTimeout(tick, 400); // initial delay before typing starts
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount — stateRef always has fresh values
 
   return (
     <section
@@ -55,8 +67,8 @@ export default function Hero() {
       className="relative min-h-screen flex items-center overflow-hidden grid-bg"
     >
       {/* Gradient Orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-neon/5 rounded-full blur-[128px]" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-violet-bright/5 rounded-full blur-[128px]" />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-cyan-neon/5 rounded-full blur-[80px]" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-violet-bright/5 rounded-full blur-[80px]" />
 
       <div className="section-container w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-4 items-center min-h-[80vh]">

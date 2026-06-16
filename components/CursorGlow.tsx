@@ -35,51 +35,75 @@ export default function CursorGlow() {
   const glowY = useSpring(mouseY, { stiffness: 40, damping: 18 });
 
   useEffect(() => {
-    // Only enable on desktop screens
     if (window.matchMedia("(max-width: 1024px)").matches) return;
     setEnabled(true);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
+    // Cache border-radius per element to avoid calling getComputedStyle()
+    // on every mousemove event (which forces style recalculation each time).
+    // We only call it when the hovered element actually changes.
+    let lastInteractive: Element | null = null;
+    let rafId: number | null = null;
+    let lastClientX = -100;
+    let lastClientY = -100;
+
+    const processMove = () => {
+      rafId = null;
+      const clientX = lastClientX;
+      const clientY = lastClientY;
+
       mouseX.set(clientX);
       mouseY.set(clientY);
 
-      // Check if mouse is hovering over interactive elements
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-
-      const interactive = target.closest("a, button, [role='button'], .cursor-pointer, .glow-border, input, textarea");
+      // Use elementFromPoint for a reliable interactive hit-test without
+      // walking the DOM tree on every event.
+      const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
+      const interactive = el?.closest(
+        "a, button, [role='button'], .cursor-pointer, .glow-border, input, textarea"
+      ) ?? null;
 
       if (interactive) {
-        setIsHovering(true);
         const rect = interactive.getBoundingClientRect();
-
-        // Snap outer ring coordinates to center of the element
         ringTargetX.set(rect.left + rect.width / 2);
         ringTargetY.set(rect.top + rect.height / 2);
-
-        // Resize outer ring to wrap the element
         ringWidthTarget.set(rect.width + 12);
         ringHeightTarget.set(rect.height + 12);
 
-        // Match the border radius
-        const style = window.getComputedStyle(interactive);
-        setBorderRadius(style.borderRadius || "8px");
+        // Only call getComputedStyle when hovering a *new* element —
+        // previously this ran on EVERY mousemove causing forced reflow.
+        if (interactive !== lastInteractive) {
+          lastInteractive = interactive;
+          const style = window.getComputedStyle(interactive);
+          setBorderRadius(style.borderRadius || "8px");
+        }
+
+        if (!isHovering) setIsHovering(true);
       } else {
-        setIsHovering(false);
-        // Follow cursor directly
+        lastInteractive = null;
         ringTargetX.set(clientX);
         ringTargetY.set(clientY);
-        // Restore default circular ring size
         ringWidthTarget.set(40);
         ringHeightTarget.set(40);
         setBorderRadius("50%");
+        if (isHovering) setIsHovering(false);
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      lastClientX = e.clientX;
+      lastClientY = e.clientY;
+      // rAF-throttle: at most one DOM read per animation frame
+      if (rafId === null) {
+        rafId = requestAnimationFrame(processMove);
       }
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY, ringTargetX, ringTargetY, ringWidthTarget, ringHeightTarget]);
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!enabled) return null;
 
