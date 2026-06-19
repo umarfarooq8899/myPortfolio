@@ -1,96 +1,101 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-// Detect mobile once at module level — avoids useState/useEffect + resize
-// listener inside a Three.js component which would cause geometry remounts.
-const IS_MOBILE = typeof window !== "undefined" && window.innerWidth < 768;
+// ─── Mobile Detection ────────────────────────────────────────────────────────
+// Detected once at module level — avoids useState/useEffect + resize listener.
+const IS_MOBILE =
+  typeof window !== "undefined" && window.innerWidth < 768;
 
+// ─── GLSL Shaders for MorphingHologram ───────────────────────────────────────
+// Moving vertex displacement to the GPU eliminates the main-thread CPU cost of
+// mutating 242 Float32Array values every animation frame in JavaScript.
+// The morph math is identical to the old JS version, just running on the GPU.
+const HOLOGRAM_VERT = /* glsl */ `
+  uniform float uTime;
+  varying vec3 vNormal;
+  varying vec3 vPosition;
+
+  void main() {
+    vec3 pos = position;
+    float wave =
+      sin(pos.x * 2.0 + uTime * 2.2) * cos(pos.y * 2.0 + uTime * 2.2) * 0.15 +
+      cos(pos.z * 2.5 - uTime * 1.8) * 0.08;
+
+    // Displace along the surface normal (normalised position = normal on a sphere)
+    vec3 n = normalize(pos);
+    pos += n * wave;
+
+    vNormal = normalize(normalMatrix * normal);
+    vPosition = pos;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  }
+`;
+
+const HOLOGRAM_FRAG = /* glsl */ `
+  uniform float uOpacity;
+  uniform vec3 uColor;
+
+  void main() {
+    gl_FragColor = vec4(uColor, uOpacity);
+  }
+`;
+
+// ─── MorphingHologram ─────────────────────────────────────────────────────────
 function MorphingHologram() {
   const meshRef = useRef<THREE.Mesh>(null!);
-  const geomRef = useRef<THREE.IcosahedronGeometry>(null!);
   const mousePos = useRef({ x: 0, y: 0 });
   const { viewport } = useThree();
 
-  // Create base icosahedron geometry
-  const baseGeom = useMemo(() => new THREE.IcosahedronGeometry(1.8, 3), []);
-
-  // Clone original vertex positions for displacement reference
-  const originalPositions = useMemo(() => {
-    return baseGeom.attributes.position.clone();
-  }, [baseGeom]);
+  // Shader uniforms — updated in useFrame, not in React state
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uColor: { value: new THREE.Color("#66FCF1") },
+      uOpacity: { value: 0.3 },
+    }),
+    []
+  );
 
   useFrame((state) => {
-    if (!meshRef.current || !geomRef.current) return;
-
+    if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
 
-    // Smooth mouse following with spring inertia
+    // Update the time uniform — GPU does the displacement, zero JS math
+    uniforms.uTime.value = t;
+
     const targetX = (state.pointer.x * viewport.width) / 6;
     const targetY = (state.pointer.y * viewport.height) / 6;
     mousePos.current.x += (targetX - mousePos.current.x) * 0.04;
     mousePos.current.y += (targetY - mousePos.current.y) * 0.04;
 
-    // Apply rotations
     meshRef.current.rotation.x = t * 0.1 + mousePos.current.y * 0.25;
     meshRef.current.rotation.y = t * 0.12 + mousePos.current.x * 0.25;
     meshRef.current.rotation.z = t * 0.05;
-
-    // Float position
     meshRef.current.position.y = Math.sin(t * 0.6) * 0.2;
     meshRef.current.position.x = mousePos.current.x * 0.3;
-
-    // Displace vertices using wave formula for a dynamic liquid morphing hologram
-    const posAttr = geomRef.current.attributes.position;
-    const orig = originalPositions.array as Float32Array;
-    const current = posAttr.array as Float32Array;
-
-    for (let i = 0; i < posAttr.count; i++) {
-      const ix = i * 3;
-      const iy = i * 3 + 1;
-      const iz = i * 3 + 2;
-
-      const x = orig[ix];
-      const y = orig[iy];
-      const z = orig[iz];
-
-      // Math wave formula based on time, vertex index, and cursor proximity
-      const wave =
-        Math.sin(x * 2.0 + t * 2.2) * Math.cos(y * 2.0 + t * 2.2) * 0.15 +
-        Math.cos(z * 2.5 - t * 1.8) * 0.08;
-
-      // Displacement along normal vector (sphere normal = position / radius)
-      const len = Math.hypot(x, y, z);
-      const nx = x / len;
-      const ny = y / len;
-      const nz = z / len;
-
-      current[ix] = x + nx * wave;
-      current[iy] = y + ny * wave;
-      current[iz] = z + nz * wave;
-    }
-
-    posAttr.needsUpdate = true;
-    // REMOVED: computeVertexNormals() — meshBasicMaterial (wireframe) does not
-    // use normals. Calling this every frame was pure wasted CPU at 60fps.
   });
 
   return (
     <mesh ref={meshRef}>
-      <icosahedronGeometry ref={geomRef} args={[1.8, 3]} />
-      <meshBasicMaterial
-        color="#66FCF1"
+      {/* Detail=2 → 80 verts; detail=3 was 242. GPU shader handles morphing now. */}
+      <icosahedronGeometry args={[1.8, IS_MOBILE ? 1 : 2]} />
+      <shaderMaterial
+        vertexShader={HOLOGRAM_VERT}
+        fragmentShader={HOLOGRAM_FRAG}
+        uniforms={uniforms}
         wireframe
         transparent
-        opacity={0.3}
         blending={THREE.AdditiveBlending}
+        depthWrite={false}
       />
     </mesh>
   );
 }
 
+// ─── HolographicCore ──────────────────────────────────────────────────────────
 function HolographicCore() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const { viewport } = useThree();
@@ -105,7 +110,6 @@ function HolographicCore() {
     mousePos.current.x += (targetX - mousePos.current.x) * 0.04;
     mousePos.current.y += (targetY - mousePos.current.y) * 0.04;
 
-    // Rotate core in opposite direction
     meshRef.current.rotation.x = -t * 0.35;
     meshRef.current.rotation.y = -t * 0.25;
     meshRef.current.position.y = Math.sin(t * 0.6) * 0.2;
@@ -126,20 +130,16 @@ function HolographicCore() {
   );
 }
 
-// Custom Plexus / Constellation Effect
+// ─── PlexusConstellation ──────────────────────────────────────────────────────
 function PlexusConstellation() {
   const pointsRef = useRef<THREE.Points>(null!);
   const linesRef = useRef<THREE.LineSegments>(null!);
-  // Frame counter for throttling the O(n²) connection scan to every 2 frames
   const frameCount = useRef(0);
 
-  // Reduced from 110 → 70 on desktop: cuts distance checks from 12,100 to
-  // ~2,450 per frame (~80% reduction) with imperceptible visual difference.
   const particleCount = IS_MOBILE ? 35 : 70;
   const maxDistance = 1.6;
   const maxConnections = 200;
 
-  // Initialize particle positions and velocities
   const particles = useMemo(() => {
     const arr = [];
     for (let i = 0; i < particleCount; i++) {
@@ -159,7 +159,6 @@ function PlexusConstellation() {
     return arr;
   }, [particleCount]);
 
-  // Float32 position buffers
   const pointsPositions = useMemo(
     () => new Float32Array(particleCount * 3),
     [particleCount]
@@ -171,19 +170,13 @@ function PlexusConstellation() {
 
   useFrame(() => {
     if (!pointsRef.current || !linesRef.current) return;
-
     frameCount.current++;
 
-    // 1. Update particle coordinates every frame (cheap — just add velocity)
     particles.forEach((p, idx) => {
       p.pos.add(p.vel);
-
-      // Bounce boundaries
       if (Math.abs(p.pos.x) > 4.5) p.vel.x *= -1;
       if (Math.abs(p.pos.y) > 4.5) p.vel.y *= -1;
       if (Math.abs(p.pos.z) > 4.5) p.vel.z *= -1;
-
-      // Snap values into Float32Array
       pointsPositions[idx * 3] = p.pos.x;
       pointsPositions[idx * 3 + 1] = p.pos.y;
       pointsPositions[idx * 3 + 2] = p.pos.z;
@@ -191,9 +184,7 @@ function PlexusConstellation() {
 
     pointsRef.current.geometry.attributes.position.needsUpdate = true;
 
-    // 2. Throttle O(n²) connection scan to every 2 frames — the line
-    //    positions update at 30fps which is visually imperceptible on
-    //    slow-moving particles while halving the per-frame CPU cost.
+    // Throttle O(n²) scan to every 2 frames (30fps for connections)
     if (frameCount.current % 2 !== 0) return;
 
     let connectionCount = 0;
@@ -204,16 +195,13 @@ function PlexusConstellation() {
       for (let j = i + 1; j < particleCount; j++) {
         const pA = particles[i].pos;
         const pB = particles[j].pos;
-        const dist = pA.distanceTo(pB);
-
-        if (dist < maxDistance && connectionCount < maxConnections) {
-          const writeIndex = connectionCount * 6;
-          linesArr[writeIndex] = pA.x;
-          linesArr[writeIndex + 1] = pA.y;
-          linesArr[writeIndex + 2] = pA.z;
-          linesArr[writeIndex + 3] = pB.x;
-          linesArr[writeIndex + 4] = pB.y;
-          linesArr[writeIndex + 5] = pB.z;
+        if (
+          pA.distanceTo(pB) < maxDistance &&
+          connectionCount < maxConnections
+        ) {
+          const w = connectionCount * 6;
+          linesArr[w] = pA.x; linesArr[w + 1] = pA.y; linesArr[w + 2] = pA.z;
+          linesArr[w + 3] = pB.x; linesArr[w + 4] = pB.y; linesArr[w + 5] = pB.z;
           connectionCount++;
         }
       }
@@ -225,7 +213,6 @@ function PlexusConstellation() {
 
   return (
     <group>
-      {/* The floating nodes */}
       <points ref={pointsRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -244,7 +231,6 @@ function PlexusConstellation() {
         />
       </points>
 
-      {/* The connecting lines */}
       <lineSegments ref={linesRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -266,14 +252,49 @@ function PlexusConstellation() {
   );
 }
 
+// ─── Scene Visibility Pauser ──────────────────────────────────────────────────
+// Pauses the Three.js render loop when the canvas is off-screen (scrolled past).
+// Resumes it as soon as even 1px of the canvas is visible again.
+function VisibilityPauser({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) {
+  const { gl, invalidate } = useThree();
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const target = containerRef.current ?? canvas;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Resume — re-register the animation loop
+          gl.setAnimationLoop(() => invalidate());
+        } else {
+          // Pause — stop the loop to free GPU budget for the rest of the page
+          gl.setAnimationLoop(null);
+        }
+      },
+      { threshold: 0 }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [gl, invalidate, containerRef]);
+
+  return null;
+}
+
+// ─── WireframeScene ───────────────────────────────────────────────────────────
 export default function WireframeScene() {
+  const containerRef = useRef<HTMLDivElement>(null!);
+
   return (
-    <div className="w-full h-full min-h-[400px]">
+    <div ref={containerRef} className="w-full h-full min-h-[400px]">
       <Canvas
         camera={{ position: [0, 0, 6.5], fov: 45 }}
         style={{ background: "transparent" }}
-        dpr={IS_MOBILE ? [1, 1] : [1, 2]}
+        dpr={IS_MOBILE ? [1, 1] : [1, 1.5]}
+        gl={{ antialias: !IS_MOBILE, powerPreference: "high-performance" }}
       >
+        <VisibilityPauser containerRef={containerRef} />
         <ambientLight intensity={0.5} />
         <MorphingHologram />
         <HolographicCore />

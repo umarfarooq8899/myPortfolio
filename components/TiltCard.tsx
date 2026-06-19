@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 interface TiltCardProps {
@@ -18,7 +18,6 @@ export default function TiltCard({
 }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
-  const [spotlightPos, setSpotlightPos] = useState({ x: 0, y: 0 });
 
   // Rotation motion values
   const rotateXVal = useMotionValue(0);
@@ -29,40 +28,48 @@ export default function TiltCard({
   const rotateX = useSpring(rotateXVal, springOptions);
   const rotateY = useSpring(rotateYVal, springOptions);
 
-  // Parallax translation for child elements (optional depth effect)
+  // Parallax translation for child elements
   const transX = useTransform(rotateYVal, [-maxTilt, maxTilt], [-5, 5]);
   const transY = useTransform(rotateXVal, [-maxTilt, maxTilt], [5, -5]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
+  // ─── Spotlight via CSS Custom Properties ──────────────────────────
+  // Performance Fix: Previously `setSpotlightPos` (React state) was called
+  // on every mousemove pixel, triggering a full React re-render + style
+  // recalculation on every frame. Now we write directly to CSS custom
+  // properties on the DOM node — zero React renders during mouse movement.
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
-    // Normalize coordinates: -0.5 to 0.5 relative to center
-    const x = (e.clientX - rect.left - width / 2) / (width / 2);
-    const y = (e.clientY - rect.top - height / 2) / (height / 2);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!ref.current || !spotlightRef.current) return;
+      const rect = ref.current.getBoundingClientRect();
 
-    // Set target rotation values
-    rotateXVal.set(-y * maxTilt);
-    rotateYVal.set(x * maxTilt);
+      const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+      const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
 
-    // Set spotlight coordinates
-    setSpotlightPos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
+      rotateXVal.set(-y * maxTilt);
+      rotateYVal.set(x * maxTilt);
 
-  const handleMouseEnter = () => {
-    setHovered(true);
-  };
+      // Write spotlight position directly to the DOM element's CSS vars
+      spotlightRef.current.style.setProperty(
+        "--spotlight-x",
+        `${e.clientX - rect.left}px`
+      );
+      spotlightRef.current.style.setProperty(
+        "--spotlight-y",
+        `${e.clientY - rect.top}px`
+      );
+    },
+    [maxTilt, rotateXVal, rotateYVal]
+  );
 
-  const handleMouseLeave = () => {
+  const handleMouseEnter = useCallback(() => setHovered(true), []);
+
+  const handleMouseLeave = useCallback(() => {
     setHovered(false);
     rotateXVal.set(0);
     rotateYVal.set(0);
-  };
+  }, [rotateXVal, rotateYVal]);
 
   return (
     <motion.div
@@ -74,18 +81,23 @@ export default function TiltCard({
         rotateX,
         rotateY,
         transformStyle: "preserve-3d",
+        willChange: "transform",
       }}
       className={`relative rounded-xl transition-shadow duration-300 ${className}`}
     >
-      {/* Background/Spotlight Glow Overlay */}
+      {/* Spotlight Glow Overlay — reads CSS custom props, no re-renders */}
       <div
+        ref={spotlightRef}
         className="absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-500 z-10"
         style={{
+          // CSS var defaults (before first mousemove) — centered
+          ["--spotlight-x" as string]: "50%",
+          ["--spotlight-y" as string]: "50%",
           opacity: hovered ? 1 : 0,
-          background: `radial-gradient(circle 250px at ${spotlightPos.x}px ${spotlightPos.y}px, ${glowColor}, transparent 80%)`,
+          background: `radial-gradient(circle 250px at var(--spotlight-x) var(--spotlight-y), ${glowColor}, transparent 80%)`,
         }}
       />
-      
+
       {/* Content wrapper with depth */}
       <motion.div
         style={{

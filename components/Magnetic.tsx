@@ -3,6 +3,54 @@
 import { useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
+// ─── Singleton Mouse Listener ─────────────────────────────────────────────────
+// A single global `mousemove` listener shared across ALL Magnetic instances.
+// Previously, each instance added its own `window.addEventListener("mousemove")`
+// — with 7 instances on the page (5 in Navbar + 2 in Hero) that was 7 separate
+// listeners firing synchronously on every mouse event.
+//
+// Now: one listener fires, stores the coords, and notifies all subscribers.
+// Cost drops from O(n listeners) to O(1) regardless of Magnetic count on page.
+
+type MouseCallback = (x: number, y: number) => void;
+
+const subscribers = new Set<MouseCallback>();
+let globalRafId: number | null = null;
+let latestX = 0;
+let latestY = 0;
+let listenerAttached = false;
+
+function flushMouseMove() {
+  globalRafId = null;
+  // Notify all active Magnetic instances with the same coords in one rAF tick
+  subscribers.forEach((cb) => cb(latestX, latestY));
+}
+
+function attachGlobalListener() {
+  if (listenerAttached || typeof window === "undefined") return;
+  listenerAttached = true;
+
+  window.addEventListener(
+    "mousemove",
+    (e: MouseEvent) => {
+      latestX = e.clientX;
+      latestY = e.clientY;
+      // rAF-throttle: at most one flush per animation frame
+      if (globalRafId === null) {
+        globalRafId = requestAnimationFrame(flushMouseMove);
+      }
+    },
+    { passive: true }
+  );
+}
+
+function subscribe(cb: MouseCallback): () => void {
+  attachGlobalListener();
+  subscribers.add(cb);
+  return () => subscribers.delete(cb);
+}
+
+// ─── Magnetic Component ───────────────────────────────────────────────────────
 export default function Magnetic({
   children,
   range = 60,
@@ -22,22 +70,13 @@ export default function Magnetic({
 
   useEffect(() => {
     const currentRef = ref.current;
-    // rAF handle — ensures the mousemove handler runs at most once per
-    // animation frame regardless of how fast the browser fires the event.
-    // This fixes the issue where 5+ Magnetic instances each add their own
-    // unthrottled global listener, stacking synchronous JS on every mouse tick.
-    let rafId: number | null = null;
-    let latestEvent: MouseEvent | null = null;
 
-    const processMove = () => {
-      rafId = null;
-      if (!currentRef || !latestEvent) return;
-
-      const { clientX, clientY } = latestEvent;
+    // Subscribe to the shared singleton listener — no new window listener added
+    const unsubscribe = subscribe((clientX, clientY) => {
+      if (!currentRef) return;
       const { left, top, width, height } = currentRef.getBoundingClientRect();
       const centerX = left + width / 2;
       const centerY = top + height / 2;
-
       const distanceX = clientX - centerX;
       const distanceY = clientY - centerY;
       const distance = Math.hypot(distanceX, distanceY);
@@ -49,30 +88,17 @@ export default function Magnetic({
         x.set(0);
         y.set(0);
       }
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      latestEvent = e;
-      if (rafId === null) {
-        rafId = requestAnimationFrame(processMove);
-      }
-    };
+    });
 
     const handleMouseLeave = () => {
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
       x.set(0);
       y.set(0);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
     currentRef?.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      window.removeEventListener("mousemove", handleMouseMove);
+      unsubscribe();
       currentRef?.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, [range, strength, x, y]);
@@ -80,7 +106,7 @@ export default function Magnetic({
   return (
     <motion.div
       ref={ref}
-      style={{ x: springX, y: springY }}
+      style={{ x: springX, y: springY, willChange: "transform" }}
       className="inline-block"
     >
       {children}

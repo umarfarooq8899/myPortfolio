@@ -10,7 +10,9 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth removed — conflicts with Next.js router scroll
+     handling and causes double-smooth jank on anchor navigation.
+     Smooth scrolling is handled by the scroll-smooth Tailwind class on <html>. */
   scrollbar-width: thin;
   scrollbar-color: #66fcf1 #0b0c10;
 }
@@ -51,12 +53,17 @@ body {
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     border: 1px solid rgba(102, 252, 241, 0.08);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Isolate this card's layout/paint from siblings — prevents a hover
+       repaint on one card from triggering repaints on adjacent cards. */
+    contain: layout style;
+    will-change: transform;
   }
   @media (min-width: 768px) {
     .glass-card {
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
   }
 
@@ -142,6 +149,15 @@ body {
   top: 50%;
   left: 50%;
   transform-origin: center;
+  /* Promote each orbiting element to its own GPU compositor layer
+     so the CPU doesn't need to repaint the parent on each rotation tick. */
+  will-change: transform;
+}
+
+/* Orbit rings are static but positioned absolutely — promote to avoid
+   being caught in parent repaints during scroll. */
+.orbit-ring {
+  will-change: auto;
 }
 
 @keyframes orbit {

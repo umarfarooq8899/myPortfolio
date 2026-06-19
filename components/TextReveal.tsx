@@ -10,30 +10,33 @@ interface TextRevealProps {
   delay?: number;
 }
 
-export default function TextReveal({ text, className = "", type = "char", delay = 0 }: TextRevealProps) {
+export default function TextReveal({
+  text,
+  className = "",
+  type = "char",
+  delay = 0,
+}: TextRevealProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, margin: "-10%" });
 
-  // Variants for container
   const containerVariants: Variants = {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: type === "char" ? 0.015 : 0.05,
+        staggerChildren: type === "char" ? 0.02 : 0.05,
         delayChildren: delay,
       },
     },
   };
 
-  // Variants for each unit (char or word)
   const itemVariants: Variants = {
     hidden: { y: "100%", opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.6,
-        ease: [0.215, 0.61, 0.355, 1], // easeOutCubic
+        duration: 0.5,
+        ease: [0.215, 0.61, 0.355, 1],
       },
     },
   };
@@ -54,9 +57,13 @@ export default function TextReveal({ text, className = "", type = "char", delay 
           className="inline-block overflow-hidden"
           style={{ whiteSpace: "pre" }}
         >
+          {/* layout={false} disables Framer Motion's per-span layout measurement,
+              halving the per-frame work during the stagger animation.
+              These spans never change size so layout tracking is wasteful. */}
           <motion.span
             variants={itemVariants}
             className="inline-block"
+            layout={false}
           >
             {item === " " && type === "char" ? "\u00A0" : item}
           </motion.span>
