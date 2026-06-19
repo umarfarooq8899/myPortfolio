@@ -97,6 +97,25 @@ export default function CursorGlow() {
 
       if (interactive) {
         const rect = interactive.getBoundingClientRect();
+
+        // Size cap: don't snap to large containers (e.g. full project cards).
+        // Only snap to small interactive elements like buttons, links, inputs.
+        // Cards with `cursor-pointer` would otherwise cause the ring to expand
+        // to the full card size, which looks wrong and trails during scroll.
+        const MAX_SNAP_W = 220;
+        const MAX_SNAP_H = 90;
+        if (rect.width > MAX_SNAP_W || rect.height > MAX_SNAP_H) {
+          // Treat like open space — ring follows cursor normally
+          lastInteractiveRef.current = null;
+          ringTargetX.set(clientX);
+          ringTargetY.set(clientY);
+          ringWidthTarget.set(40);
+          ringHeightTarget.set(40);
+          borderRadiusMV.set("50%");
+          isHoveringMV.set(0);
+          return;
+        }
+
         ringTargetX.set(rect.left + rect.width / 2);
         ringTargetY.set(rect.top + rect.height / 2);
         ringWidthTarget.set(rect.width + 12);
@@ -153,10 +172,27 @@ export default function CursorGlow() {
     window.addEventListener("mousemove", handleMouseMove);
     document.documentElement.addEventListener("mouseleave", handleMouseLeave);
 
+    // ─── Scroll fix ───────────────────────────────────────────────────
+    // During scroll the browser fires no mousemove events, so the ring
+    // spring drifts from its last snapped position back toward the cursor
+    // — this looks like the ring "travelling" with the scrolled element.
+    // On any scroll, snap everything back to cursor position immediately.
+    const handleScroll = () => {
+      ringTargetX.set(lastX.current);
+      ringTargetY.set(lastY.current);
+      ringWidthTarget.set(40);
+      ringHeightTarget.set(40);
+      borderRadiusMV.set("50%");
+      isHoveringMV.set(0);
+      lastInteractiveRef.current = null;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
     return () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", handleMouseMove);
       document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [mouseX, mouseY, ringTargetX, ringTargetY, ringWidthTarget, ringHeightTarget, isHoveringMV, borderRadiusMV]);
 

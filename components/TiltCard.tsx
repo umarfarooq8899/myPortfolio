@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 interface TiltCardProps {
@@ -17,27 +17,37 @@ export default function TiltCard({
   glowColor = "rgba(102, 252, 241, 0.12)",
 }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState(false);
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
   // Rotation motion values
   const rotateXVal = useMotionValue(0);
   const rotateYVal = useMotionValue(0);
 
-  // Smooth spring physics for rotation
   const springOptions = { stiffness: 150, damping: 20, mass: 0.5 };
   const rotateX = useSpring(rotateXVal, springOptions);
   const rotateY = useSpring(rotateYVal, springOptions);
 
-  // Parallax translation for child elements
   const transX = useTransform(rotateYVal, [-maxTilt, maxTilt], [-5, 5]);
   const transY = useTransform(rotateXVal, [-maxTilt, maxTilt], [5, -5]);
 
-  // ─── Spotlight via CSS Custom Properties ──────────────────────────
-  // Performance Fix: Previously `setSpotlightPos` (React state) was called
-  // on every mousemove pixel, triggering a full React re-render + style
-  // recalculation on every frame. Now we write directly to CSS custom
-  // properties on the DOM node — zero React renders during mouse movement.
-  const spotlightRef = useRef<HTMLDivElement>(null);
+  // ─── Spotlight helpers ────────────────────────────────────────────
+  // We never use React state for the spotlight. Position + opacity are
+  // written directly to the DOM element's style so zero re-renders occur.
+  // Initial position is -9999px so the gradient is invisible before the
+  // first mousemove — fixes the "whole card lights up on hover" bug.
+  const showSpotlight = useCallback(() => {
+    if (spotlightRef.current) {
+      spotlightRef.current.style.opacity = "1";
+    }
+  }, []);
+
+  const hideSpotlight = useCallback(() => {
+    if (!spotlightRef.current) return;
+    spotlightRef.current.style.opacity = "0";
+    // Reset to off-card position so next hover starts clean
+    spotlightRef.current.style.setProperty("--spotlight-x", "-9999px");
+    spotlightRef.current.style.setProperty("--spotlight-y", "-9999px");
+  }, []);
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -50,7 +60,7 @@ export default function TiltCard({
       rotateXVal.set(-y * maxTilt);
       rotateYVal.set(x * maxTilt);
 
-      // Write spotlight position directly to the DOM element's CSS vars
+      // Write cursor-relative coords directly to CSS vars — zero React renders
       spotlightRef.current.style.setProperty(
         "--spotlight-x",
         `${e.clientX - rect.left}px`
@@ -63,18 +73,47 @@ export default function TiltCard({
     [maxTilt, rotateXVal, rotateYVal]
   );
 
-  const handleMouseEnter = useCallback(() => setHovered(true), []);
+  const handleMouseEnter = useCallback(() => {
+    // Don't show yet — wait for first mousemove to set the correct position.
+    // This prevents the "whole card lights up" flash from the 50%/50% default.
+    // showSpotlight() is called on first mousemove via the move handler itself.
+  }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setHovered(false);
+    hideSpotlight();
     rotateXVal.set(0);
     rotateYVal.set(0);
-  }, [rotateXVal, rotateYVal]);
+  }, [hideSpotlight, rotateXVal, rotateYVal]);
+
+  // ─── Scroll fix ───────────────────────────────────────────────────
+  // The browser does NOT fire mouseleave when the page scrolls under
+  // the cursor — so `hovered` would stay true and the spotlight would
+  // remain visible as the card moves away. We listen for scroll and
+  // forcibly reset both the spotlight and rotation.
+  useEffect(() => {
+    const handleScroll = () => {
+      hideSpotlight();
+      rotateXVal.set(0);
+      rotateYVal.set(0);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hideSpotlight, rotateXVal, rotateYVal]);
+
+  // Show spotlight on first real mousemove (not mouseenter)
+  const handleMouseMoveWithShow = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      showSpotlight();
+      handleMouseMove(e);
+    },
+    [showSpotlight, handleMouseMove]
+  );
 
   return (
     <motion.div
       ref={ref}
-      onMouseMove={handleMouseMove}
+      onMouseMove={handleMouseMoveWithShow}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -85,20 +124,22 @@ export default function TiltCard({
       }}
       className={`relative rounded-xl transition-shadow duration-300 ${className}`}
     >
-      {/* Spotlight Glow Overlay — reads CSS custom props, no re-renders */}
+      {/* Spotlight overlay — fully DOM-driven, zero React re-renders */}
       <div
         ref={spotlightRef}
-        className="absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-500 z-10"
+        className="absolute inset-0 rounded-xl pointer-events-none z-10"
         style={{
-          // CSS var defaults (before first mousemove) — centered
-          ["--spotlight-x" as string]: "50%",
-          ["--spotlight-y" as string]: "50%",
-          opacity: hovered ? 1 : 0,
+          // Start off-card so the gradient is invisible before first mousemove
+          ["--spotlight-x" as string]: "-9999px",
+          ["--spotlight-y" as string]: "-9999px",
+          opacity: 0,
+          // CSS transition only on opacity, not on the gradient (prevents travel bug)
+          transition: "opacity 0.3s ease",
           background: `radial-gradient(circle 250px at var(--spotlight-x) var(--spotlight-y), ${glowColor}, transparent 80%)`,
         }}
       />
 
-      {/* Content wrapper with depth */}
+      {/* Content wrapper with parallax depth */}
       <motion.div
         style={{
           x: transX,
