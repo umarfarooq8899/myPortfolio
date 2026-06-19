@@ -62,7 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`scroll-smooth ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body className="noise-overlay antialiased">
+      <body className="antialiased">
         <LanguageProvider>{children}</LanguageProvider>
       </body>
 

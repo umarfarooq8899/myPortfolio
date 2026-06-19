@@ -56,7 +56,7 @@ export default function Navbar() {
           {/* Logo */}
           <Magnetic range={40} strength={0.3}>
             <a href="#" className="relative group">
-              <span className="font-mono text-lg sm:text-xl font-bold text-white tracking-wider animate-pulse">
+              <span className="font-mono text-lg sm:text-xl font-bold text-white tracking-wider">
                 UF
                 <span className="text-cyan-neon">.</span>
               </span>

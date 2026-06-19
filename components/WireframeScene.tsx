@@ -60,10 +60,8 @@ function MorphingHologram() {
   );
 
   useFrame((state) => {
-    if (!meshRef.current) return;
+    if (pausedRef.current || !meshRef.current) return;
     const t = state.clock.getElapsedTime();
-
-    // Update the time uniform — GPU does the displacement, zero JS math
     uniforms.uTime.value = t;
 
     const targetX = (state.pointer.x * viewport.width) / 6;
@@ -102,7 +100,7 @@ function HolographicCore() {
   const mousePos = useRef({ x: 0, y: 0 });
 
   useFrame((state) => {
-    if (!meshRef.current) return;
+    if (pausedRef.current || !meshRef.current) return;
     const t = state.clock.getElapsedTime();
 
     const targetX = (state.pointer.x * viewport.width) / 6;
@@ -169,7 +167,7 @@ function PlexusConstellation() {
   );
 
   useFrame(() => {
-    if (!pointsRef.current || !linesRef.current) return;
+    if (pausedRef.current || !pointsRef.current || !linesRef.current) return;
     frameCount.current++;
 
     particles.forEach((p, idx) => {
@@ -253,31 +251,31 @@ function PlexusConstellation() {
 }
 
 // ─── Scene Visibility Pauser ──────────────────────────────────────────────────
-// Pauses the Three.js render loop when the canvas is off-screen (scrolled past).
-// Resumes it as soon as even 1px of the canvas is visible again.
-function VisibilityPauser({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) {
-  const { gl, invalidate } = useThree();
+// When the hero scrolls out of view, we set a shared ref to `true` so every
+// useFrame callback can early-return, doing zero GPU work until visible again.
+// We do NOT call gl.setAnimationLoop — R3F owns that loop internally and
+// overriding it causes conflicts with the reconciler.
+const pausedRef = { current: false };
 
+function VisibilityPauser({
+  containerRef,
+}: {
+  containerRef: React.RefObject<HTMLDivElement>;
+}) {
   useEffect(() => {
-    const canvas = gl.domElement;
-    const target = containerRef.current ?? canvas;
+    const target = containerRef.current;
+    if (!target) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          // Resume — re-register the animation loop
-          gl.setAnimationLoop(() => invalidate());
-        } else {
-          // Pause — stop the loop to free GPU budget for the rest of the page
-          gl.setAnimationLoop(null);
-        }
+        pausedRef.current = !entry.isIntersecting;
       },
       { threshold: 0 }
     );
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, [gl, invalidate, containerRef]);
+  }, [containerRef]);
 
   return null;
 }

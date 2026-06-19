@@ -44,7 +44,7 @@ export default function TechOrbit() {
               {/* Center Core */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-cyan-neon/20 to-violet-bright/20 flex items-center justify-center border border-cyan-neon/20 animate-glow-pulse">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-cyan-neon/20 to-violet-bright/20 flex items-center justify-center border border-cyan-neon/20 shadow-[0_0_15px_rgba(102,252,241,0.3)]">
                     <span className="font-grotesk text-lg sm:text-xl font-bold text-white text-center leading-tight whitespace-pre-line">{tech.coreStack}</span>
                   </div>
                 </div>
